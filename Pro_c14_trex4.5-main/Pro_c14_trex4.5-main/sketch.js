@@ -3,7 +3,7 @@ var END = 0;
 var gameState = PLAY;
 
 var trex, trex_running, trex_collided;
-var ground, invisibleGround, groundImage;
+var ground, invisibleGround, groundImage, restartImage, restart, gameOverImage, gameOver;
 
 var cloud, cloudsGroup, cloudImage;
 var obstaclesGroup, obstacle1, obstacle2, obstacle3, obstacle4, obstacle5, obstacle6;
@@ -25,7 +25,8 @@ function preload(){
   obstacle4 = loadImage("obstacle4.png");
   obstacle5 = loadImage("obstacle5.png");
   obstacle6 = loadImage("obstacle6.png");
-  
+  restartImage = loadImage("restart.png")
+  gameOverImage = loadImage("gameOver.png")
 }
 
 function setup() {
@@ -35,12 +36,22 @@ function setup() {
   trex.addAnimation("running", trex_running);
   trex.addAnimation("collided" , trex_collided)
   trex.scale = 0.5;
-  
+  trex.setCollider("circle",0,0,50)
+  trex.debug=true;
+
   ground = createSprite(200,180,400,20);
   ground.addImage("ground",groundImage);
   ground.x = ground.width /2;
   ground.velocityX = -4;
-  
+
+  gameOver = createSprite(300,100);
+  gameOver.addImage(gameOverImage);
+  gameOver.scale = 5
+
+  restart = createSprite(300,140);
+  restart.addImage(restartImage);  
+  restart.scale = 0.5;
+
   invisibleGround = createSprite(200,190,400,10);
   invisibleGround.visible = false;
   
@@ -56,6 +67,8 @@ function setup() {
 function draw() {
   background(180);
   text("Score: "+ score, 500,50);
+  console.log("This is",gameState)
+
 
   
   if(gameState === PLAY){
@@ -72,6 +85,9 @@ function draw() {
   //spawn the clouds
   spawnClouds();
   
+  gameOver.visible = false;
+  restart.visible = false;
+
   //spawn obstacles on the ground
   spawnObstacles();
   if(obstaclesGroup.isTouching(trex)) {
@@ -83,6 +99,11 @@ function draw() {
     ground.velocityX = 0;
     obstaclesGroup.setVelocityXEach(0)
     cloudsGroup.setVelocityXEach(0)
+    cloud.lifetime = cloud.lifetime + 1;
+    trex.velocityY=0;
+    obstaclesGroup.setLifetimeEach(-1)
+    gameOver.visible = true;
+    restart.visible = true;
   }
   
 
